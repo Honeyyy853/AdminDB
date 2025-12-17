@@ -6,14 +6,14 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
-$productName  = $_POST['productName'];
-$productDesc  = $_POST['productDesc'];
+$productName  = trim($_POST['productName']);
+$productDesc  = trim($_POST['productDesc']);
 $productPrice = $_POST['productPrice'];
-$productUnit  = $_POST['productUnit'];
+$productUnit  = trim($_POST['productUnit']);
 $cat_id       = $_POST['cat_id'];
 
 $imageName = NULL;   
-$offerId  = NULL;  
+$offerId  = NULL;   
 
 
 if (!empty($_FILES['image']['name'])) {
@@ -21,7 +21,7 @@ if (!empty($_FILES['image']['name'])) {
     move_uploaded_file($_FILES['image']['tmp_name'], "uploads/" . $imageName);
 }
 
-
+// REQUIRED FIELD CHECK
 if ($productName == "" || $productPrice == "" || $productUnit == "" || $cat_id == "") {
     echo json_encode(["status" => false, "message" => "Missing required fields"]);
     exit;
