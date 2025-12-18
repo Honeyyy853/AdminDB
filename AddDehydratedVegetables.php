@@ -15,8 +15,11 @@ $unit        = $_POST["unit"];
 $cat_id      = $_POST["cat_id"];
 $description = $_POST["description"];
 
-$sql = "INSERT INTO tbl_products (name, price, unit, cat_id, description)
-        VALUES ('$name', '$price', '$unit', '$cat_id', '$description')";
+$exe = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+$filename = time().random_int(1000,9999).'.'.$exe;
+
+$sql = "INSERT INTO tbl_products (name, price, unit, cat_id, description,image)
+        VALUES ('$name', '$price', '$unit', '$cat_id', '$description','$filename')";
 
 $result = mysqli_query($conn, $sql);
 
