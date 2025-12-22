@@ -16,7 +16,6 @@ $cat_id      = $_POST["cat_id"];
 $description = $_POST["description"];
 
 
-
 $exe = pathinfo($_FILES['HerbImg']['name'], PATHINFO_EXTENSION);
 
 $filename = time() . random_int(1000, 9999) . '.' . $exe;
