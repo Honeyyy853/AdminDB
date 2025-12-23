@@ -21,6 +21,10 @@ $filename = time().random_int(1000,9999).'.'.$exe;
 $sql = "INSERT INTO tbl_products (name, price, unit, cat_id, description,image)
         VALUES ('$name', '$price', '$unit', '$cat_id', '$description','$filename')";
 
+move_uploaded_file($_FILES['DehydratedFruitImg']['tmp_name'], 'C:\finalSEM\ShreeHariAdminDashboard\assets\uploads\Dehydrated Fruits/' . $filename);
+
+
+
 $result = mysqli_query($conn, $sql);
 
 $response['status'] = "true";

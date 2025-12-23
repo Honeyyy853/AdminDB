@@ -18,6 +18,7 @@ $description = $_POST["description"];
 $exe = pathinfo($_FILES['DehydratedVegetableImg']['name'], PATHINFO_EXTENSION);
 $filename = time().random_int(1000,9999).'.'.$exe;
 
+move_uploaded_file($_FILES['DehydratedVegetableImg']['tmp_name'], 'C:\finalSEM\ShreeHariAdminDashboard\assets\uploads\Dehydtared Vegetables/' . $filename);
 $sql = "INSERT INTO tbl_products (name, price, unit, cat_id, description,image)
         VALUES ('$name', '$price', '$unit', '$cat_id', '$description','$filename')";
 
