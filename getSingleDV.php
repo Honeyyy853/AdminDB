@@ -10,11 +10,11 @@ $result = mysqli_query($conn, "SELECT * FROM tbl_products where id='$id'");
 $row = mysqli_fetch_assoc($result);
 if ($row) {
     $response['status'] = "true";
-    $response['message'] = 'Herb Found';
+    $response['message'] = 'Dehydrated Vegetable Found';
     $response['data'] = $row;
 } else {
     $response['status'] = "false";
-    $response['message'] = 'Herb Not Found';
+    $response['message'] = 'Dehydrated Vegetable Not Found';
     $response['data'] = null;
 }
 echo json_encode($response);

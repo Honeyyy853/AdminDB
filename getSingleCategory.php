@@ -17,6 +17,5 @@ if ($row) {
     $response['message'] = 'Category Not Found';
     $response['data'] = null;
 }
-
 echo json_encode($response);
 $conn->close();
