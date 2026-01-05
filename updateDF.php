@@ -19,13 +19,17 @@ if ($id === '' || $name === '' || $price === '' || $unit === '') {
     ]);
     exit;
 }
-
+$exe = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+$filename = time() . random_int(1000, 9999) . '.' . $exe;
+//echo $filename;die;
+move_uploaded_file($_FILES['image']['tmp_name'], './uploads/DehydratedFruits/' . $filename);
 $sql = "
     UPDATE tbl_products SET
         name = '$name',
         price = '$price',
         unit = '$unit',
-        description = '$description'
+        description = '$description',
+        image = '$filename'
     WHERE id = '$id'
 ";
 
