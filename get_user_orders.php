@@ -19,8 +19,15 @@ SELECT
     o.order_id,
     o.order_date,
     o.order_status,
-    o.total_amount,
 
+    -- ✅ correct total
+    (
+        SELECT SUM(total_amount)
+        FROM tbl_orders
+        WHERE order_id = o.order_id
+    ) AS total_amount,
+
+    o.quantity,
     p.id as product_id,
     p.name as product_name,
     p.description,
@@ -65,6 +72,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         "product_name" => $row['product_name'],
         "description"  => $row['description'],
         "price"        => $row['price'],
+        "quantity"     => $row['quantity'],
         "image"        => $imagePath
     ];
 }

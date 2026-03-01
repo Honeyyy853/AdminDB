@@ -17,7 +17,7 @@ if (!$user_id || !is_array($items)) {
     echo json_encode([
         "status" => false,
         "message" => "Invalid data"
-        
+
     ]);
     exit;
 }
@@ -40,9 +40,9 @@ foreach ($items as $item) {
 
 
     $sql = "INSERT INTO tbl_orders
-(user_id, product_id, order_date, order_status, payment_status, total_amount, shipping_address, payment_method, order_id, payment_id)
+(user_id, product_id, order_date, order_status, payment_status, total_amount, shipping_address, payment_method, order_id, payment_id,quantity)
         VALUES
-        ('$user_id', '$product_id', '$order_date', '$order_status', '$payment_status', '$total_amount', '$shipping_address', '$payment_method', '$orderId', '$payment_id')";
+        ('$user_id', '$product_id', '$order_date', '$order_status', '$payment_status', '$total_amount', '$shipping_address', '$payment_method', '$orderId', '$payment_id','$qty')";
 
     $res = mysqli_query($conn, $sql);
 
