@@ -11,6 +11,7 @@ $result = mysqli_query($conn, "SELECT p.id,
        p.price,
        p.unit,
        p.image,
+         p.offerId,
        c.name AS category_name
 FROM tbl_products p
 LEFT JOIN tbl_category c

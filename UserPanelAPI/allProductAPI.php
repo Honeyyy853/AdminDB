@@ -22,7 +22,8 @@ $productResult = mysqli_query($conn, "
            p.price,
            p.unit,
            p.image,
-           c.name AS category_name
+           c.name AS category_name,
+           p.offerId 
     FROM tbl_products p
     LEFT JOIN tbl_category c ON p.cat_id = c.id
     WHERE p.cat_id = 1
@@ -66,6 +67,7 @@ $productResult = mysqli_query($conn, "
            p.price,
            p.unit,
            p.image,
+           p.offerId,
            c.name AS category_name
     FROM tbl_products p
     LEFT JOIN tbl_category c ON p.cat_id = c.id
@@ -110,7 +112,7 @@ $productResult = mysqli_query($conn, "
            p.description,
            p.price,
            p.unit,
-           p.image,
+           p.image,p.offerId,
            c.name AS category_name
     FROM tbl_products p
     LEFT JOIN tbl_category c ON p.cat_id = c.id

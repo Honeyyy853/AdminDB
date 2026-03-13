@@ -9,6 +9,10 @@ $name        = $_POST['name'] ?? '';
 $price       = $_POST['price'] ?? '';
 $unit        = $_POST['unit'] ?? '';
 $description = $_POST['description'] ?? '';
+$offerId     = $_POST["offerId"];
+if($offerId == "") {
+    $offerId = "NULL";
+}
 
 if ($id === '' || $name === '' || $price === '' || $unit === '') {
     echo json_encode([
@@ -37,6 +41,7 @@ $sql = "
         price = '$price',
         unit = '$unit',
         description = '$description',
+offerId = $offerId,
         image = '$filename'
     WHERE id = '$id'
 ";

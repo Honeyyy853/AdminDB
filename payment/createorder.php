@@ -10,11 +10,6 @@ require_once "razorpay-php/Razorpay.php";
 use Razorpay\Api\Api;
 
 $amount = isset($_GET['amount']) ? (int)$_GET['amount'] : 0;
-
-
-
-
-
 $keyId = "rzp_test_SHvbTnyYE85HSK";
 $keySecret = "vgmUVpZ19IpF92kio5SdWsOD";
 
