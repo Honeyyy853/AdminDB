@@ -12,10 +12,13 @@ $result = mysqli_query($conn, "SELECT p.id,
        p.unit,
        p.image,
        p.offerId,
+       o.offerName,
        c.name AS category_name
 FROM tbl_products p
 LEFT JOIN tbl_category c
     ON p.cat_id = c.id
+    left join tbl_offers o
+    on o.offer_id=p.offerId
     where cat_id =1
     ;
 ");

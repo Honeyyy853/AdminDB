@@ -33,48 +33,79 @@ if (!$res) {
 }
 
 
+/* CHECK ORDER ITEMS STATUS */
+
 $check = mysqli_query($conn, "
-SELECT COUNT(*) total,
-SUM(item_status='Delivered') Delivered
+SELECT 
+COUNT(*) total,
+SUM(item_status='Delivered') delivered,
+SUM(item_status='Cancelled') cancelled,
+SUM(item_status='Processing') processing,
+SUM(item_status='Shipped') shipped
 FROM tbl_order_items
 WHERE order_id='$order_id'
 ");
 
-
-// echo "
-// SELECT COUNT(*) total,
-// SUM(item_status='Delivered') delivered
-// FROM tbl_order_items
-// WHERE order_id='$order_id'
-// ";die;
-
 $row = mysqli_fetch_assoc($check);
 
-if ($row['total'] == $row['Delivered']) {
+$total      = $row['total'];
+$delivered  = $row['delivered'];
+$cancelled  = $row['cancelled'];
+$processing = $row['processing'];
+$shipped    = $row['shipped'];
 
+/* ORDER STATUS LOGIC */
 
-    //echo "all deleivered";die;
+/* ORDER STATUS LOGIC */
+
+if ($total == $cancelled) {
+
+    mysqli_query($conn, "
+        UPDATE tbl_orders
+        SET order_status='Cancelled'
+        WHERE order_id='$order_id'
+    ");
+
+}
+elseif ($total == ($delivered + $cancelled)) {
+
     mysqli_query($conn, "
         UPDATE tbl_orders
         SET order_status='Completed'
         WHERE order_id='$order_id'
     ");
-} else {
-    if ($row['Delivered'] < $row['total']) {
-        mysqli_query($conn, "
+
+}
+elseif ($processing > 0 || $shipped > 0) {
+
+    mysqli_query($conn, "
+        UPDATE tbl_orders
+        SET order_status='Processing'
+        WHERE order_id='$order_id'
+    ");
+
+}
+elseif ($delivered > 0) {
+
+    mysqli_query($conn, "
+        UPDATE tbl_orders
+        SET order_status='Partially Completed'
+        WHERE order_id='$order_id'
+    ");
+
+}
+else {
+
+    mysqli_query($conn, "
         UPDATE tbl_orders
         SET order_status='Pending'
         WHERE order_id='$order_id'
     ");
-    } elseif ($row['Delivered'] > 0) {
-        mysqli_query($conn, "
-        UPDATE tbl_orders
-        SET order_status='Partially Delivered'
-        WHERE order_id='$order_id'  ");
-    }
+
 }
 
 echo json_encode([
     "success" => true,
     "message" => "Item status updated"
 ]);
+?>
