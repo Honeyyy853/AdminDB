@@ -16,17 +16,7 @@ if (empty($userid)) {
     exit;
 }
 
-$sql = "SELECT 
-            p.id as product_id,
-            p.name,
-            p.description,
-            p.price,
-            p.image,
-            p.cat_id,
-            c.quantity
-        FROM tbl_cart c
-        INNER JOIN tbl_products p ON c.product_id = p.id
-        WHERE c.user_id = '$userid'";
+$sql = "SELECT p.id as product_id, p.name, p.description, p.price, p.image, p.cat_id, c.quantity, tbl_offers.promocode, tbl_offers.offerName, tbl_offers.discount_value FROM tbl_cart c LEFT JOIN tbl_products p ON c.product_id = p.id LEFT JOIN tbl_offers on p.offerId=tbl_offers.offer_id WHERE c.user_id = $userid";
 
 $result = mysqli_query($conn, $sql);
 
