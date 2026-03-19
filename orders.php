@@ -11,7 +11,7 @@ $shipping_address = $_POST['shipping_address'];
 $payment_method = $_POST['payment_method'];
 $payment_id = $_POST['payment_id'] ?? null; 
 $items = json_decode($_POST['items'], true);
-
+$discount = $item['discount_value'] ?? 0;   
 if (!$user_id || !is_array($items)) {
     echo json_encode(["status" => false, "message" => "Invalid Data"]);
     exit;
@@ -45,11 +45,11 @@ foreach ($items as $item) {
     $product_id = $item['product_id'];
     $qty = $item['quantity'];
     $price = $item['price'];
-
+$discount = $item['discount_value'] ?? 0;   
     $sqlItem = "INSERT INTO tbl_order_items
-(order_id,product_id,quantity,price,item_status)
+(order_id,product_id,quantity,price,item_status,discount_value)
 VALUES
-('$order_id','$product_id','$qty','$price','Pending')";
+('$order_id','$product_id','$qty','$price','Pending','$discount')";
 
     mysqli_query($conn, $sqlItem);
 }

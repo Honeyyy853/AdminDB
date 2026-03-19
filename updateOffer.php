@@ -20,6 +20,7 @@ validity='$validity',
 status='$status'
 WHERE offer_id='$id'";
 
+
 $result=mysqli_query($conn,$sql);
 
 if($result){
