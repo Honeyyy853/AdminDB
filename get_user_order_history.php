@@ -27,11 +27,14 @@ SELECT
     u.name AS customer_name,
     u.email AS customer_email,
     u.phone AS customer_phone,
-    u.address AS customer_address
+    u.address AS customer_address,
+    r.id AS review_id
 FROM tbl_orders o
 JOIN tbl_order_items oi ON oi.order_id = o.order_id
 JOIN tbl_products p ON p.id = oi.product_id
 JOIN tbl_users u ON u.user_id = o.user_id
+Left JOIN tbl_reviews r
+ON r.product_id = oi.product_id AND r.user_id = o.user_id
 WHERE o.user_id='$user_id'
 ORDER BY o.order_id DESC
 ";
@@ -71,7 +74,9 @@ while ($row = mysqli_fetch_assoc($result)) {
         "quantity" => $row['quantity'],
         "discount_value" => $row['discount_value'],
         "item_status" => $row['item_status'],
-        "image" => $image
+        "image" => $image,
+        "review_id" => $row['review_id'] ? true : false
+      
     ];
 }
 

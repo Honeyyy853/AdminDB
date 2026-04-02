@@ -25,8 +25,7 @@ $response['totalOffers'] = $result->num_rows;
 $result = mysqli_query($conn, "SELECT * FROM tbl_users");
 $response['totalUsers'] = $result->num_rows;
 
-$result = mysqli_query($conn, "SELECT * FROM tbl_feedback");
-$response['totalFeedback'] = $result->num_rows;
+
 
 
 echo json_encode($response);

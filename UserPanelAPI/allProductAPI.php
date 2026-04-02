@@ -23,10 +23,14 @@ $productResult = mysqli_query($conn, "
            p.unit,
            p.image,
            c.name AS category_name,
-           p.offerId 
+           p.offerId,
+           IFNULL(AVG(r.rating), 0) as avg_rating,
+           COUNT(r.id) as total_reviews
     FROM tbl_products p
     LEFT JOIN tbl_category c ON p.cat_id = c.id
+    LEFT JOIN tbl_reviews r ON p.id = r.product_id
     WHERE p.cat_id = 1
+    GROUP BY p.id
 ");
 
 $response['herb'] = [];
@@ -68,10 +72,14 @@ $productResult = mysqli_query($conn, "
            p.unit,
            p.image,
            p.offerId,
-           c.name AS category_name
+           c.name AS category_name, 
+           IFNULL(AVG(r.rating), 0) as avg_rating,
+           COUNT(r.id) as total_reviews
     FROM tbl_products p
     LEFT JOIN tbl_category c ON p.cat_id = c.id
+    LEFT JOIN tbl_reviews r ON p.id = r.product_id
     WHERE p.cat_id = 2
+    GROUP BY p.id
 ");
 
 $response['df'] = [];
@@ -113,10 +121,14 @@ $productResult = mysqli_query($conn, "
            p.price,
            p.unit,
            p.image,p.offerId,
+           IFNULL(AVG(r.rating), 0) as avg_rating,
+           COUNT(r.id) as total_reviews,
            c.name AS category_name
     FROM tbl_products p
     LEFT JOIN tbl_category c ON p.cat_id = c.id
+    LEFT JOIN tbl_reviews r ON p.id = r.product_id
     WHERE p.cat_id = 3
+    GROUP BY p.id
 ");
 
 $response['dv'] = [];

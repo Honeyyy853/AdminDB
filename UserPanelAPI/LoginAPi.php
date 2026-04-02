@@ -3,34 +3,65 @@ include '../connection.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
+header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
-$response = array();
+error_reporting(0); 
 
-$email_value = isset($_POST["email"]) ? $_POST["email"] : '';
-$password_value = isset($_POST["password"]) ? $_POST["password"] : '';
+$email = $_POST["email"] ?? '';
+$password = $_POST["password"] ?? '';
+
+if ($email == '' || $password == '') {
+    echo json_encode([
+        "status" => "false",
+        "message" => "Email and Password required"
+    ]);
+    exit;
+}
+
+$email = mysqli_real_escape_string($conn, $email);
 
 
-$sql = "SELECT * FROM tbl_users 
-        WHERE email='$email_value' 
-        AND password='$password_value'";
+$result = mysqli_query($conn, "SELECT * FROM tbl_users WHERE email='$email'");
 
-$result = mysqli_query($conn, $sql);
+if (!$result) {
+    echo json_encode([
+        "status" => "false",
+        "message" => "Query Failed"
+    ]);
+    exit;
+}
 
-if ($result && mysqli_num_rows($result) > 0) {
+if (mysqli_num_rows($result) > 0) {
 
     $row = mysqli_fetch_assoc($result);
 
-    $response['status']  = "true";
-    $response['user_id'] = $row['user_id'];
-    $response['email']   = $row['email'];
+    if (password_verify($password, $row['password'])) {
+
+        echo json_encode([
+            "status" => "true",
+            "message" => "Login successful",
+            "user_id" => $row['user_id'],
+            "name" => $row['name'],
+            "email" => $row['email']
+        ]);
+        exit;
+
+    } else {
+        echo json_encode([
+            "status" => "false",
+            "message" => "Invalid password"
+        ]);
+        exit;
+    }
 
 } else {
-
-    $response['status'] = "false";
-
+    echo json_encode([
+        "status" => "false",
+        "message" => "User not found"
+    ]);
+    exit;
 }
 
-echo json_encode($response);
 $conn->close();
+?>
