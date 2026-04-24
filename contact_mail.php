@@ -5,7 +5,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
-include 'connection.php'; // your database connection
+include 'connection.php';
 
 require './PHPMailer/PHPMailer/src/PHPMailer.php';
 require './PHPMailer/PHPMailer/src/SMTP.php';
@@ -13,20 +13,35 @@ require './PHPMailer/PHPMailer/src/Exception.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 
+// Get JSON data
 $data = json_decode(file_get_contents("php://input"), true);
 
-$name = htmlspecialchars($data['name'] ?? '');
-$email = htmlspecialchars($data['email'] ?? '');
-$phone = htmlspecialchars($data['phone'] ?? '');
-$inquiry = htmlspecialchars($data['inquiry_type'] ?? '');
-$product = htmlspecialchars($data['product'] ?? '');
-$quantity = htmlspecialchars($data['quantity'] ?? '');
-$message = htmlspecialchars($data['message'] ?? '');
+// Sanitize + Trim
+function clean($value) {
+    return htmlspecialchars(trim($value ?? ''));
+}
 
-if(!$name || !$email || !$message){
+$name     = clean($data['name']);
+$email    = clean($data['email']);
+$phone    = clean($data['phone']);
+$inquiry  = clean($data['inquiry_type']);
+$product  = clean($data['product']);
+$quantity = clean($data['quantity']);
+$message  = clean($data['message']);
+
+// Validation
+if (empty($name) || empty($email) || empty($message)) {
     echo json_encode([
-        "status"=>false,
-        "message"=>"Required fields missing"
+        "status" => false,
+        "message" => "Please fill all required fields"
+    ]);
+    exit;
+}
+
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode([
+        "status" => false,
+        "message" => "Invalid email format"
     ]);
     exit;
 }
@@ -34,12 +49,18 @@ if(!$name || !$email || !$message){
 try {
 
     /* ==========================
-       SAVE INQUIRY IN DATABASE
-       ========================== */
+       SAVE TO DATABASE
+    ========================== */
 
-    $stmt = $conn->prepare("INSERT INTO tbl_inquiries 
-    (name,email,phone,inquiry_type,product,quantity,message) 
-    VALUES (?,?,?,?,?,?,?)");
+    $stmt = $conn->prepare("
+        INSERT INTO tbl_inquiries 
+        (name, email, phone, inquiry_type, product, quantity, message) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ");
+
+    if (!$stmt) {
+        throw new Exception("Database prepare failed");
+    }
 
     $stmt->bind_param(
         "sssssss",
@@ -52,12 +73,13 @@ try {
         $message
     );
 
-    $stmt->execute();
-
+    if (!$stmt->execute()) {
+        throw new Exception("Database insert failed");
+    }
 
     /* ==========================
        SEND EMAIL
-       ========================== */
+    ========================== */
 
     $mail = new PHPMailer(true);
 
@@ -65,46 +87,55 @@ try {
     $mail->Host       = 'smtp.gmail.com';
     $mail->SMTPAuth   = true;
     $mail->Username   = 'rathodhoney852003@gmail.com';
-    $mail->Password   = 'chbrvsbscagvgath';
+    $mail->Password   = 'chbrvsbscagvgath'; // ⚠️ later use ENV
     $mail->SMTPSecure = 'tls';
     $mail->Port       = 587;
 
-    $mail->setFrom('rathodhoney852003@gmail.com', 'Website Inquiry');
+    $mail->setFrom('rathodhoney852003@gmail.com', 'Shree Hari Agritech');
     $mail->addAddress('rathodhoney852003@gmail.com');
 
     $mail->isHTML(true);
-    $mail->Subject = "New Business Inquiry - Shree Hari Agritech";
+    $mail->Subject = "New Inquiry Received";
 
+    // ✨ PROFESSIONAL EMAIL DESIGN
     $mail->Body = "
-    <h2>New Inquiry from Website</h2>
+    <div style='font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:10px;overflow:hidden'>
+        
+        <div style='background:#2e7d32;color:#fff;padding:15px;text-align:center'>
+            <h2>New Website Inquiry</h2>
+        </div>
 
-    <table border='1' cellpadding='8' cellspacing='0' style='border-collapse:collapse'>
-    <tr><td><b>Name</b></td><td>$name</td></tr>
-    <tr><td><b>Email</b></td><td>$email</td></tr>
-    <tr><td><b>Phone</b></td><td>$phone</td></tr>
-    <tr><td><b>Inquiry Type</b></td><td>$inquiry</td></tr>
-    <tr><td><b>Product</b></td><td>$product</td></tr>
-    <tr><td><b>Quantity</b></td><td>$quantity</td></tr>
-    <tr><td><b>Message</b></td><td>$message</td></tr>
-    </table>
+        <div style='padding:20px'>
+            <p><b>Name:</b> $name</p>
+            <p><b>Email:</b> $email</p>
+            <p><b>Phone:</b> $phone</p>
+            <p><b>Inquiry Type:</b> $inquiry</p>
+            <p><b>Product:</b> $product</p>
+            <p><b>Quantity:</b> $quantity</p>
+            <p><b>Message:</b><br>$message</p>
+        </div>
 
-    <br><b>This message was sent from your website contact form.</b>
+        <div style='background:#f5f5f5;padding:10px;text-align:center;font-size:12px;color:#777'>
+            This message was sent from your website
+        </div>
+    </div>
     ";
 
     $mail->send();
 
+    // ✅ SUCCESS RESPONSE (frontend ke liye better)
     echo json_encode([
-        "status"=>true,
-        "message"=>"Your inquiry has been sent successfully"
+        "status" => true,
+        "message" => "✅ Inquiry sent successfully! We will contact you soon."
     ]);
 
 } catch (Exception $e) {
 
     echo json_encode([
-        "status"=>false,
-        "message"=>"Something went wrong"
+        "status" => false,
+        "message" => "❌ Failed to process request. Please try again later."
+        // "error" => $e->getMessage() // debugging ke liye enable kar sakta hai
     ]);
-
 }
 
 ?>

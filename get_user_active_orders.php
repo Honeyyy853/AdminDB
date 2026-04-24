@@ -8,7 +8,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 
 $user_id = $_GET['user_id'];
 
-$query="
+$query = "
 SELECT
 o.order_id,
 o.order_date,
@@ -46,57 +46,53 @@ AND o.order_status NOT IN ('Completed','Cancelled')
 ORDER BY o.order_id DESC
 ";
 
-$result=mysqli_query($conn,$query);
+$result = mysqli_query($conn, $query);
 
-$orders=[];
+$orders = [];
 
-while($row=mysqli_fetch_assoc($result)){
+while ($row = mysqli_fetch_assoc($result)) {
 
-$folder="";
+    $folder = "";
 
-if($row['cat_id']==1) $folder="Herbs";
-if($row['cat_id']==2) $folder="DehydratedFruits";
-if($row['cat_id']==3) $folder="DehydratedVegetables";
+    if ($row['cat_id'] == 1) $folder = "Herbs";
+    if ($row['cat_id'] == 2) $folder = "DehydratedFruits";
+    if ($row['cat_id'] == 3) $folder = "DehydratedVegetables";
 
-$image=$folder."/".$row['image'];
+    $image = $folder . "/" . $row['image'];
 
-$oid=$row['order_id'];
+    $oid = $row['order_id'];
 
-if(!isset($orders[$oid])){
+    if (!isset($orders[$oid])) {
 
-$orders[$oid]=[
-"order_id"=>$oid,
-"order_date"=>$row['order_date'],
-"order_status"=>$row['order_status'],
-"total_amount"=>$row['total_amount'],
-"items"=>[]
-];
+        $orders[$oid] = [
+            "order_id" => $oid,
+            "order_date" => $row['order_date'],
+            "order_status" => $row['order_status'],
+            "total_amount" => $row['total_amount'],
+            "items" => []
+        ];
+    }
 
-}
+    $orders[$oid]['items'][] = [
 
-$orders[$oid]['items'][]=[
+        "product_id" => $row['product_id'],
+        "product_name" => $row['name'],
+        "description" => $row['description'],
+        "price" => $row['price'],
+        "quantity" => $row['quantity'],
 
-"product_id"=>$row['product_id'],
-"product_name"=>$row['name'],
-"description"=>$row['description'],
-"price"=>$row['price'],
-"quantity"=>$row['quantity'],
+        "discount_value" => $row['discount_value'], // order ka actual discount
 
-"discount_value"=>$row['discount_value'], // order ka actual discount
+        "promocode" => $row['promocode'],
+        "offerName" => $row['offerName'],
 
-"promocode"=>$row['promocode'],
-"offerName"=>$row['offerName'],
+        "item_status" => $row['item_status'],
+        "image" => $image
 
-"item_status"=>$row['item_status'],
-"image"=>$image
-
-];
-
+    ];
 }
 
 echo json_encode([
-"status"=>true,
-"data"=>array_values($orders)
+    "status" => true,
+    "data" => array_values($orders)
 ]);
-
-?>

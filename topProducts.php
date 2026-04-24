@@ -8,9 +8,14 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 $response = [];
 
-// ❌ product_name hata
-// ✅ name use kar
-$query = "SELECT name, price FROM tbl_products";
+$query = "
+SELECT p.name, SUM(oi.quantity) as sold
+FROM tbl_order_items oi
+JOIN tbl_products p ON oi.product_id = p.id
+GROUP BY oi.product_id
+ORDER BY sold DESC
+LIMIT 5
+";
 
 $result = mysqli_query($conn, $query);
 
@@ -25,7 +30,7 @@ if (!$result) {
 while ($row = mysqli_fetch_assoc($result)) {
     $response['data'][] = [
         "name" => $row['name'],
-        "price" => (int)$row['price']
+        "sold" => (int)$row['sold']
     ];
 }
 

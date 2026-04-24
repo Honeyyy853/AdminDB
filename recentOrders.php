@@ -8,9 +8,12 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 $response = [];
 
-// ❌ product_name hata
-// ✅ name use kar
-$query = "SELECT name, price FROM tbl_products";
+$query = "
+SELECT order_id, user_id, total_amount, order_status, order_date
+FROM tbl_orders
+ORDER BY order_date DESC
+LIMIT 5
+";
 
 $result = mysqli_query($conn, $query);
 
@@ -24,8 +27,11 @@ if (!$result) {
 
 while ($row = mysqli_fetch_assoc($result)) {
     $response['data'][] = [
-        "name" => $row['name'],
-        "price" => (int)$row['price']
+        "order_id" => $row['order_id'],
+        "user_id" => $row['user_id'],
+        "total_amount" => (float)$row['total_amount'],
+        "status" => $row['order_status'], // 👈 yaha mapping kiya
+        "order_date" => $row['order_date']
     ];
 }
 

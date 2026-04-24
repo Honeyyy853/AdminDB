@@ -15,12 +15,16 @@ SELECT p.id,
        p.unit,
        p.image,
        c.name AS category_name,
+       o.offerName, 
+       o.discount_value,
        r.rating,
        r.review_text,
        r.created_at
 FROM tbl_products p
 LEFT JOIN tbl_category c
     ON p.cat_id = c.id
+LEFT JOIN tbl_offers o
+    ON p.offerId = o.offer_id   
 LEFT JOIN tbl_reviews r
     ON p.id = r.product_id
 WHERE p.id = '$id'

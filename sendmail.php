@@ -1,82 +1,166 @@
-    <?php
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+<?php
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
+require './PHPMailer/PHPMailer/src/PHPMailer.php';
+require './PHPMailer/PHPMailer/src/SMTP.php';
+require './PHPMailer/PHPMailer/src/Exception.php';
 
-    use PHPMailer\PHPMailer\PHPMailer;
-    use PHPMailer\PHPMailer\Exception;
-    use PHPMailer\PHPMailer\SMTP;
+$response = array();
 
-    require './PHPMailer/PHPMailer/src/PHPMailer.php';
+$email = $_POST["email"] ?? "";
+$type  = $_POST["type"] ?? "";
+$name  = $_POST["name"] ?? "User";
 
-    require './PHPMailer/PHPMailer/src/SMTP.php';
-    require './PHPMailer/PHPMailer/src/Exception.php';
+if (!$email || !$type) {
+    echo json_encode([
+        "Status" => "Fail",
+        "Message" => "Missing email or type"
+    ]);
+    exit;
+}
 
-    $response = array();
+try {
+    $mail = new PHPMailer(true);
 
-    $email = $_POST["email"];
+    // SMTP
+    $mail->isSMTP();
+    $mail->Host       = 'smtp.gmail.com';
+    $mail->SMTPAuth   = true;
+    $mail->Username   = 'rathodhoney852003@gmail.com';
+    $mail->Password   = 'chbrvsbscagvgath';
+    $mail->SMTPSecure = 'tls';
+    $mail->Port       = 587;
 
+    $mail->setFrom('rathodhoney852003@gmail.com', 'Organic Store');
+    $mail->addAddress($email);
+    $mail->isHTML(true);
 
-    try {
-        // Create a new PHPMailer instance
-        $mail = new PHPMailer(true);
-        // Server settings
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com'; // Correct Gmail SMTP server
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'rathodhoney852003@gmail.com'; // Replace with your email
-        $mail->Password   = 'chbrvsbscagvgath';   // Use your app password securely
-        $mail->SMTPSecure = 'tls';
-        $mail->Port       = 587;
+    switch ($type) {
 
-        // Recipients
-        $mail->setFrom('rathodhoney852003@gmail.com', 'Honey');
-        $mail->addAddress($email);
+        // 🎉 REGISTER
+        case "register":
+            $mail->Subject = "Welcome to Organic Store, $name!";
+            $mail->Body = "
+            <div style='font-family:Arial;background:#f4f6f8;padding:20px'>
+              <div style='max-width:600px;margin:auto;background:#fff;border-radius:12px;overflow:hidden'>
+                
+                <div style='background:#198754;color:#fff;padding:20px;text-align:center'>
+                  <h2>🌿 Welcome to Organic Store</h2>
+                </div>
+    
+                <div style='padding:20px'>
+                  <h3>Hello $name 👋</h3>
+                  <p>Thanks for joining us! We're excited to have you.</p>
+                  <p>Explore fresh, natural & eco-friendly products 🌱</p>
+    
+                  
+                </div>
+    
+                <div style='background:#f1f1f1;padding:10px;text-align:center;font-size:12px'>
+                  Organic Store Team
+                </div>
+    
+              </div>
+            </div>
+            ";
+            break;
 
-        // Email content
-        $mail->isHTML(true);
-        $mail->Subject = 'Welcome to Our Platform!';
-        $mail->Body = " <div style='font-family: Arial, sans-serif; background:#f4f4f4; padding:20px;'> <div style='max-width:600px; margin:auto; background:white; padding:20px; border-radius:8px;'> <h1 style='color:#2e7d32;'>🌿 Welcome to Organic Store!</h1>
+        // 🔐 LOGIN
+        case "login":
+            $mail->Subject = "Login Alert - Organic Store";
+            $mail->Body = "
+            <div style='font-family:Arial;background:#f4f6f8;padding:20px'>
+              <div style='max-width:600px;margin:auto;background:#fff;border-radius:12px'>
+                
+                <div style='background:#0d6efd;color:#fff;padding:20px;text-align:center'>
+                  <h2>Login Successful</h2>
+                </div>
+    
+                <div style='padding:20px'>
+                  <h3>Hello!!</h3>
+                  <p>You have successfully logged into your account.</p>
+                  <p>If this wasn't you, please secure your account immediately.</p>
+                </div>
+    
+              </div>
+            </div>
+            ";
+            break;
 
-```
-        <p>Hi <strong>!</strong>,</p>
+        // 📦 ORDER
+        case "order":
+            $mail->Subject = " Order Confirmed!";
+            $mail->Body = "
+            <div style='font-family:Arial;background:#f4f6f8;padding:20px'>
+              <div style='max-width:600px;margin:auto;background:#fff;border-radius:12px'>
+                
+                <div style='background:#198754;color:#fff;padding:20px;text-align:center'>
+                  <h2>Order Confirmed 🎉</h2>
+                </div>
+    
+                <div style='padding:20px'>
+                  <h3>Hi!!</h3>
+                  <p>Your order has been placed successfully.</p>
+    
+                  <div style='background:#f8f9fa;padding:15px;border-radius:8px;margin:15px 0'>
+                    🚚 <b>Delivery Status:</b> Processing <br>
+                    📍 <b>Shipping:</b> Will be delivered soon
+                  </div>
+    
+                  <p>Thanks for shopping with us ❤️</p>
+                </div>
+    
+              </div>
+            </div>
+            ";
+            break;
 
-        <p>Thank you for joining our organic products family! We are committed to providing you with 100% natural, fresh, and eco-friendly products straight from nature.</p>
+        // 💳 PAYMENT
+        case "payment":
+            $mail->Subject = "Payment Successful!";
+            $mail->Body = "
+            <div style='font-family:Arial;background:#f4f6f8;padding:20px'>
+              <div style='max-width:600px;margin:auto;background:#fff;border-radius:12px'>
+                
+                <div style='background:#20c997;color:#fff;padding:20px;text-align:center'>
+                  <h2>Payment Successful 💳</h2>
+                </div>
+    
+                <div style='padding:20px'>
+                  <h3>Hi!!</h3>
+                  <p>Your payment has been successfully processed.</p>
+    
+                  <div style='background:#e9f7ef;padding:15px;border-radius:8px;margin:15px 0'>
+                    ✔ Transaction completed <br>
+                    ✔ Your order is now confirmed
+                  </div>
+    
+                  <p>Thank you for choosing us 🙌</p>
+                </div>
+    
+              </div>
+            </div>
+            ";
+            break;
 
-        <h3>What you can expect from us:</h3>
-        <ul>
-            <li>✔ Fresh & chemical-free products</li>
-            <li>✔ Eco-friendly packaging</li>
-            <li>✔ Fast and safe delivery</li>
-            <li>✔ Best prices for organic goods</li>
-        </ul>
-
-        <p>Start exploring our store and enjoy a healthier lifestyle with organic goodness! 🌱</p>
-
-        <p style='margin-top:20px;'>Best Regards,<br>
-        <strong>Organic Store Team</strong></p>
-    </div>
-</div>
-```
-
-";
-
-        $mail->send();
-
-        $response["Status"] = "Success";
-
-        $response["MailStatus"] = "Welcome email sent successfully.";
-    } catch (Exception $e) {
-        $response["Status"] = "Fail";
-
-        $response["MailStatus"] = "Failed to send welcome email. Error: {$mail->ErrorInfo}";
+        default:
+            throw new Exception("Invalid type");
     }
 
+    $mail->send();
 
-    // Encode and send JSON response
-    $responseJson = json_encode($response);
-
-
-    echo $responseJson;
+    echo json_encode([
+        "Status" => "Success",
+        "Message" => "$type mail sent"
+    ]);
+} catch (Exception $e) {
+    echo json_encode([
+        "Status" => "Fail",
+        "Message" => $mail->ErrorInfo
+    ]);
+}
